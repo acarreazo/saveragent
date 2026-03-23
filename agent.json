@@ -1,5 +1,5 @@
 {
-  "type": "Agent",
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "SaverAgent",
   "description": "Autonomous AI savings agent that distributes income into savings goals using USDC on Celo. Built for LATAM families via Telegram. No crypto knowledge required.",
   "image": "https://raw.githubusercontent.com/acarreazo/saveragent/main/logo.png",
