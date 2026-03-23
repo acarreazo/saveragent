@@ -1,0 +1,31 @@
+{
+  "type": "Agent",
+  "name": "SaverAgent",
+  "description": "Autonomous AI savings agent that distributes income into savings goals using USDC on Celo. Built for LATAM families via Telegram. No crypto knowledge required.",
+  "image": "https://raw.githubusercontent.com/acarreazo/saveragent/main/logo.png",
+  "endpoints": [
+    {
+      "type": "wallet",
+      "address": "0xC1aA6274Ddf09D3e28553AA2145515728f8cB79E",
+      "chainId": 11142220
+    },
+    {
+      "type": "web",
+      "url": "https://github.com/acarreazo/saveragent"
+    },
+    {
+      "type": "telegram",
+      "url": "https://t.me/SaverAgentBot"
+    }
+  ],
+  "capabilities": [
+    "income-distribution",
+    "savings-goals",
+    "usdc-transfers",
+    "spanish-language",
+    "autonomous-monitoring"
+  ],
+  "supportedTrust": ["reputation"],
+  "version": "1.0.0",
+  "buildDate": "2026-03-22"
+}
