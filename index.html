@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaverAgent — Ahorro autónomo en Celo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #2DD4BF;
+    --teal-dark: #0D9488;
+    --teal-deep: #042f2e;
+    --ink: #0a0f0e;
+    --muted: #4b6b68;
+    --surface: #f0fdfb;
+    --border: rgba(45,212,191,0.2);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: #e2faf8;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(45,212,191,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,212,191,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,15,14,0.85);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--teal); letter-spacing: -0.02em; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { font-size: 0.85rem; color: #a0c4c0; text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-badge {
+    font-size: 0.75rem; padding: 0.3rem 0.9rem;
+    border: 1px solid var(--teal); border-radius: 999px;
+    color: var(--teal); font-family: 'Syne', sans-serif;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.75rem; font-family: 'Syne', sans-serif; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--teal); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.35rem 1rem; margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  h1 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.95; letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 em { font-style: normal; color: var(--teal); }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300;
+    color: #a0c4c0; max-width: 560px; line-height: 1.7;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-ctas {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--teal); color: var(--ink); font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.9rem; padding: 0.8rem 2rem;
+    border-radius: 999px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 32px rgba(45,212,191,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 48px rgba(45,212,191,0.5); }
+  .btn-ghost {
+    border: 1px solid var(--border); color: #a0c4c0; font-size: 0.9rem;
+    padding: 0.8rem 2rem; border-radius: 999px; text-decoration: none; transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* STATS */
+  .stats {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    background: rgba(45,212,191,0.03);
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--teal); }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* SECTIONS */
+  section { position: relative; z-index: 1; padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-tag {
+    font-size: 0.7rem; font-family: 'Syne', sans-serif; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 1rem;
+  }
+  h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.02em; margin-bottom: 3rem; }
+
+  /* DEMO CHAT */
+  .chat-window {
+    background: #111a19; border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.5rem; max-width: 480px; margin: 0 auto;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  }
+  .chat-header { font-size: 0.75rem; color: var(--muted); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; }
+  .chat-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+  .msg { margin-bottom: 1rem; display: flex; flex-direction: column; }
+  .msg.user { align-items: flex-end; }
+  .msg.bot { align-items: flex-start; }
+  .bubble {
+    max-width: 85%; padding: 0.65rem 1rem; border-radius: 12px; line-height: 1.5;
+  }
+  .msg.user .bubble { background: var(--teal-dark); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.bot .bubble { background: #1e2e2c; color: #c8f0ec; border-bottom-left-radius: 4px; font-size: 0.83rem; }
+  .msg-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; }
+
+  /* CARDS GRID */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .card {
+    background: #0d1a18; border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.75rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover { border-color: var(--teal); transform: translateY(-3px); }
+  .card-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+  .card h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .card p { font-size: 0.875rem; color: #7aacaa; line-height: 1.6; }
+
+  /* TECH STACK */
+  .tech-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .tech-pill {
+    font-size: 0.8rem; font-family: 'Syne', sans-serif;
+    padding: 0.4rem 1rem; border-radius: 999px;
+    border: 1px solid var(--border); color: #a0c4c0;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .tech-pill:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* LINKS */
+  .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+  .link-card {
+    background: #0d1a18; border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem 1.5rem; text-decoration: none; color: inherit;
+    display: flex; flex-direction: column; gap: 0.4rem;
+    transition: border-color 0.2s;
+  }
+  .link-card:hover { border-color: var(--teal); }
+  .link-card-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Syne', sans-serif; }
+  .link-card-value { font-size: 0.9rem; color: var(--teal); font-weight: 500; word-break: break-all; }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--muted);
+  }
+  footer strong { color: var(--teal); font-family: 'Syne', sans-serif; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 640px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">SaverAgent</div>
+  <div class="nav-links">
+    <a href="#how">Cómo funciona</a>
+    <a href="#tech">Tecnología</a>
+    <a href="#links">Links</a>
+  </div>
+  <div class="nav-badge">Celo Mainnet · AgentId 3935</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag"><span></span> Live on Celo Mainnet</div>
+  <h1>Ahorro <em>autónomo</em><br>para familias<br>LATAM</h1>
+  <p class="hero-sub">SaverAgent distribuye tus ingresos en metas de ahorro automáticamente usando USDC en Celo — solo por Telegram, sin conocimiento cripto.</p>
+  <div class="hero-ctas">
+    <a href="https://8004scan.io/agents/celo/3935" target="_blank" class="btn-primary">Ver en AgentScan</a>
+    <a href="https://github.com/acarreazo/saveragent" target="_blank" class="btn-ghost">GitHub →</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">3935</div><div class="stat-label">Agent ID en Celo</div></div>
+  <div class="stat"><div class="stat-num">3</div><div class="stat-label">Agentes autónomos</div></div>
+  <div class="stat"><div class="stat-num">USDC</div><div class="stat-label">Stablecoin nativa</div></div>
+  <div class="stat"><div class="stat-num">0</div><div class="stat-label">Conocimiento cripto requerido</div></div>
+</div>
+
+<section id="how">
+  <div class="section-tag">// cómo funciona</div>
+  <h2>Ahorra en 3 mensajes</h2>
+  <div class="chat-window">
+    <div class="chat-header"><div class="chat-dot"></div> SaverAgent · Telegram</div>
+    <div class="msg user"><div class="msg-label">Tú</div><div class="bubble">Recibi $300</div></div>
+    <div class="msg bot">
+      <div class="msg-label">SaverAgent</div>
+      <div class="bubble">
+        Plan para $300 USDC:<br>
+        — Fondo de emergencias: $150<br>
+        — Alquiler del mes: $90<br>
+        — Educación hijos: $60<br><br>
+        ¿Lo ejecuto? Responde SI para confirmar.
+      </div>
+    </div>
+    <div class="msg user"><div class="msg-label">Tú</div><div class="bubble">SI</div></div>
+    <div class="msg bot">
+      <div class="msg-label">SaverAgent</div>
+      <div class="bubble">
+        ✓ Distribuido en Celo!<br>
+        — Emergencias: $150 USDC · tx confirmada<br>
+        — Alquiler: $90 USDC · tx confirmada<br>
+        — Educación: $60 USDC · tx confirmada
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-tag">// arquitectura</div>
+  <h2>Sistema de 3 agentes</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">💬</div>
+      <h3>Agente 1 — Conversacional</h3>
+      <p>Habla con el usuario en español vía Telegram. Entiende el contexto, responde preguntas y confirma acciones.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <h3>Agente 2 — Planificador</h3>
+      <p>Calcula la distribución óptima usando la regla 50/30/20 adaptada a las metas personales del usuario.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⛓️</div>
+      <h3>Agente 3 — Ejecutor</h3>
+      <p>Firma y transmite transacciones reales de USDC en Celo. Nunca transfiere más de lo autorizado (SpendingLimit.sol).</p>
+    </div>
+  </div>
+</section>
+
+<section id="tech">
+  <div class="section-tag">// stack tecnológico</div>
+  <h2>Construido con</h2>
+  <div class="tech-grid">
+    <div class="tech-pill">Python 3.12</div>
+    <div class="tech-pill">Telegram Bot</div>
+    <div class="tech-pill">Celo Mainnet</div>
+    <div class="tech-pill">USDC</div>
+    <div class="tech-pill">Solidity</div>
+    <div class="tech-pill">ERC-8004</div>
+    <div class="tech-pill">web3.py</div>
+    <div class="tech-pill">SpendingLimit.sol</div>
+    <div class="tech-pill">AgentIdentity Registry</div>
+  </div>
+</section>
+
+<section id="links">
+  <div class="section-tag">// links del proyecto</div>
+  <h2>Recursos</h2>
+  <div class="links-grid">
+    <a class="link-card" href="https://8004scan.io/agents/celo/3935" target="_blank">
+      <div class="link-card-label">AgentScan Registry</div>
+      <div class="link-card-value">8004scan.io/agents/celo/3935</div>
+    </a>
+    <a class="link-card" href="https://github.com/acarreazo/saveragent" target="_blank">
+      <div class="link-card-label">GitHub</div>
+      <div class="link-card-value">github.com/acarreazo/saveragent</div>
+    </a>
+    <a class="link-card" href="https://www.karmahq.xyz/project/saveragent" target="_blank">
+      <div class="link-card-label">Karma Project</div>
+      <div class="link-card-value">karmahq.xyz/project/saveragent</div>
+    </a>
+    <a class="link-card" href="https://celoscan.io/address/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432" target="_blank">
+      <div class="link-card-label">Contrato en Celoscan</div>
+      <div class="link-card-value">0x8004...a432</div>
+    </a>
+  </div>
+</section>
+
+<footer>
+  Construido para el <strong>Celo Build Agents for the Real World Hackathon V2</strong><br>
+  <span style="margin-top:0.5rem;display:block;">SaverAgent · AgentId 3935 · Celo Mainnet</span>
+</footer>
+
+</body>
+</html>
